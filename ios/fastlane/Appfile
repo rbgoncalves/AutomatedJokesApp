@@ -1,0 +1,8 @@
+app_identifier("io.xgeeks.automatedjokesapp") # The bundle identifier of your app
+apple_id("r.goncalves@xgeeks.io") # Your Apple email address
+
+itc_team_id("120728190") # App Store Connect Team ID
+team_id("Y5PGGD4YTX") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
