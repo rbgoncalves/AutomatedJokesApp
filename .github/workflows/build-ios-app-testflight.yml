@@ -7,15 +7,25 @@ on:
     branches:
       - 'develop'
 
-defaults:
-  run:
-    working-directory: ./ios
-
 jobs:
   build:
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: fastlane beta
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+
+      - name: Install modules
+        run: npm install
+
+      - name: Build & Distribute to Testflight
+        working-directory: ./ios
+        run: fastlane beta
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}

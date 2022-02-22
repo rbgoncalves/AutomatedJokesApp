@@ -19,7 +19,7 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     # Creates a temporary keychain
-    setup_ci if ENV['CI']
+    setup_ci if is_ci
 
     # Fetch and installs the certificates/profiles 
     match(type: 'appstore')
