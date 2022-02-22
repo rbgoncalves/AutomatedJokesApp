@@ -18,8 +18,34 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
+    # Creates a temporary keychain
+    setup_ci if is_ci
+
+    # Fetch and installs the certificates/profiles 
+    match(type: "appstore")
+
+    # Increment build number
     increment_build_number(xcodeproj: "AutomatedJokesApp.xcodeproj")
+
     build_app(workspace: "AutomatedJokesApp.xcworkspace", scheme: "AutomatedJokesApp")
-    upload_to_testflight
+    
+    if is_ci 
+      # Gets API Key so 2FA is not needed
+      api_key = app_store_connect_api_key(
+        key_id: ENV["APPSTORE_KEY_ID"],
+        issuer_id: ENV["APPSTORE_ISSUER_ID"],
+        key_content:  ENV["APPSTORE_KEY_CONTENT"],
+        duration: 1200,
+      )
+
+      upload_to_testflight(
+        api_key: api_key,
+        skip_waiting_for_build_processing: true
+      )
+    else
+      # Upload from local env, uses regural authentication
+      upload_to_testflight
+
+    end  
   end
 end
