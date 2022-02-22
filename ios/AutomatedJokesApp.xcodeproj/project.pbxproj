@@ -145,7 +145,6 @@
 				6C97AB639B58BBB4B15BBE30 /* Pods-AutomatedJokesApp-AutomatedJokesAppTests.debug.xcconfig */,
 				1D0AE47A65C8663E3B452821 /* Pods-AutomatedJokesApp-AutomatedJokesAppTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -448,7 +447,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.xgeeks.automatedjokesapp";
+				PRODUCT_BUNDLE_IDENTIFIER = io.xgeeks.automatedjokesapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AutomatedJokesApp.app/AutomatedJokesApp";
 			};
@@ -472,7 +471,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.xgeeks.automatedjokesapp";
+				PRODUCT_BUNDLE_IDENTIFIER = io.xgeeks.automatedjokesapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AutomatedJokesApp.app/AutomatedJokesApp";
 			};
@@ -484,7 +483,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = Y5PGGD4YTX;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = AutomatedJokesApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -496,8 +497,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.xgeeks.automatedjokesapp";
+				PRODUCT_BUNDLE_IDENTIFIER = io.xgeeks.automatedjokesapp;
 				PRODUCT_NAME = AutomatedJokesApp;
+				PROVISIONING_PROFILE_SPECIFIER = "match Development io.xgeeks.automatedjokesapp";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -510,7 +512,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = Y5PGGD4YTX;
 				INFOPLIST_FILE = AutomatedJokesApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -521,8 +526,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "io.xgeeks.automatedjokesapp";
+				PRODUCT_BUNDLE_IDENTIFIER = io.xgeeks.automatedjokesapp;
 				PRODUCT_NAME = AutomatedJokesApp;
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore io.xgeeks.automatedjokesapp";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
