@@ -17,15 +17,15 @@ jobs:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-
       - name: Install modules
         run: npm install
 
       - name: Build & Distribute to Testflight
         working-directory: ./ios
-        run: fastlane beta
+        run: fastlane beta env:beta
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
           APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
           APPSTORE_KEY_CONTENT: ${{ secrets.APPSTORE_KEY_CONTENT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
