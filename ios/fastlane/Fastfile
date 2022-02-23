@@ -15,11 +15,14 @@
 
 default_platform(:ios)
 
-platform :ios do |options|
+platform :ios do
   desc "Push a new beta build to TestFlight"
-  lane :beta do
+  lane :beta do |options|
     # Creates a temporary keychain
-    setup_ci if is_ci
+    if is_ci
+      setup_ci
+      get_appstore_api_key
+    end  
 
     # Fetch and installs the certificates/profiles 
     match(type: "appstore")
@@ -28,7 +31,7 @@ platform :ios do |options|
     
     deploy_testflight
 
-    release_on_github options
+    release_on_github options if is_ci
   end
   
   desc 'Build ipa'
@@ -36,13 +39,16 @@ platform :ios do |options|
     is_releasable = analyze_commits(match: "*#{options[:env]}*")
 
     unless is_releasable
-      UI.important  "Skipping build: no change since last build"
-      next
+      UI.important  "No changes since last release"
     end
-    
-    increment_build_number(xcodeproj: "AutomatedJokesApp.xcodeproj")
 
-    build_app(scheme: "AutomatedJokesApp")
+    last_build_number = latest_testflight_build_number(
+      api_key: lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
+    )
+
+    increment_build_number(build_number: last_build_number + 1)
+
+    build_app(scheme: "AutomatedJokesApp", silent: true)
   end
 
   desc 'Deploy ipa to TestFlight'
@@ -50,28 +56,16 @@ platform :ios do |options|
     # Generate Change Log
     notes = conventional_changelog(title: "Change Log", format: "plain")
 
-    UI.important  notes
-
     if is_ci 
-      # Gets API Key so 2FA is not needed
-      api_key = app_store_connect_api_key(
-        key_id: ENV["APPSTORE_KEY_ID"],
-        issuer_id: ENV["APPSTORE_ISSUER_ID"],
-        key_content:  ENV["APPSTORE_KEY_CONTENT"],
-        duration: 1200,
-      )
-
       upload_to_testflight(
-        api_key: api_key,
+        api_key: lane_context[SharedValues::APP_STORE_CONNECT_API_KEY],
         skip_waiting_for_build_processing: true
       )
     else
       # Upload from local env, uses regural authentication
       upload_to_testflight
 
-    end  
-
-    clean_build_artifacts
+    end 
   end
 
   desc "Release on Github"
@@ -90,15 +84,28 @@ platform :ios do |options|
     hash = commit[:commit_hash]
 
     # Set Github Release
-    name =  "[#{lane_name}] v#{version_number} Build: #{build_number}}"
+    name =  "[#{lane_name}] v#{version_number} Build: #{build_number}"
 
     set_github_release(
       repository_name: "rbgoncalves/AutomatedJokesApp",
+      api_bearer: ENV["GITHUB_TOKEN"],
       name: name,
       commitish: hash,
       description: notes,
       tag_name: "v#{version_number}-#{lane_name}-#{build_number}",
       upload_assets: [lane_context[SharedValues::IPA_OUTPUT_PATH]]
+    )
+  end
+
+  desc "Get AppStoreConnect API key"
+  private_lane :get_appstore_api_key do
+    # Gets API Key so 2FA is not needed
+    # Value is injected into: SharedValues::APP_STORE_CONNECT_API_KEY
+    app_store_connect_api_key(
+      key_id: ENV["APPSTORE_KEY_ID"],
+      issuer_id: ENV["APPSTORE_ISSUER_ID"],
+      key_content:  ENV["APPSTORE_KEY_CONTENT"],
+      duration: 1200,
     )
   end
 end
