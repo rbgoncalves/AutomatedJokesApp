@@ -15,7 +15,7 @@
 
 default_platform(:ios)
 
-platform :ios do
+platform :ios do |options|
   desc "Push a new beta build to TestFlight"
   lane :beta do
     # Creates a temporary keychain
@@ -24,11 +24,34 @@ platform :ios do
     # Fetch and installs the certificates/profiles 
     match(type: "appstore")
 
-    # Increment build number
+    build_ipa options
+    
+    deploy_testflight
+
+    release_on_github options
+  end
+  
+  desc 'Build ipa'
+  private_lane :build_ipa do |options|
+    is_releasable = analyze_commits(match: "*#{options[:env]}*")
+
+    unless is_releasable
+      UI.important  "Skipping build: no change since last build"
+      next
+    end
+    
     increment_build_number(xcodeproj: "AutomatedJokesApp.xcodeproj")
 
-    build_app(workspace: "AutomatedJokesApp.xcworkspace", scheme: "AutomatedJokesApp")
-    
+    build_app(scheme: "AutomatedJokesApp")
+  end
+
+  desc 'Deploy ipa to TestFlight'
+  private_lane :deploy_testflight do
+    # Generate Change Log
+    notes = conventional_changelog(title: "Change Log", format: "plain")
+
+    UI.important  notes
+
     if is_ci 
       # Gets API Key so 2FA is not needed
       api_key = app_store_connect_api_key(
@@ -47,5 +70,35 @@ platform :ios do
       upload_to_testflight
 
     end  
+
+    clean_build_artifacts
+  end
+
+  desc "Release on Github"
+  private_lane :release_on_github do |options|
+    lane_name = options[:env]
+
+    # Generate Change Log
+    notes = conventional_changelog(title: "Change Log")
+
+    # Get Version and Build Number
+    version_number = get_version_number
+    build_number = get_build_number
+ 
+    # Get head commit
+    commit = last_git_commit
+    hash = commit[:commit_hash]
+
+    # Set Github Release
+    name =  "[#{lane_name}] v#{version_number} Build: #{build_number}}"
+
+    set_github_release(
+      repository_name: "rbgoncalves/AutomatedJokesApp",
+      name: name,
+      commitish: hash,
+      description: notes,
+      tag_name: "v#{version_number}-#{lane_name}-#{build_number}",
+      upload_assets: [lane_context[SharedValues::IPA_OUTPUT_PATH]]
+    )
   end
 end
